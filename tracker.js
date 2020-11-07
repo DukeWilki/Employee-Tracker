@@ -12,32 +12,61 @@ var connection = mysql.createConnection({
 
   // Your password
   password: ".",
-  database: "top_songsDB"
+  database: "top_songsDB",
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   runSearch();
 });
 
-    console.log("App listening");
+console.log("App listening");
 
+function runSearch() {
+  inquirer
+    .prompt({
+      name: "action",
+      type: "list",
+      message: "What would you like to do?",
+      choices: [
+        "View all employees",
+        "View employees by department",
+        "View employees by manager",
+        "Add employee",
+        "Remove employee",
+        "Add employee role",
+        "Add employee manager",
+      ],
+    })
+    .then(function (answer) {
+      switch (answer.action) {
+        case "View all employees":
+          connection.end();
+          break;
 
-    function runSearch() {
-        inquirer
-          .prompt({
-            name: "action",
-            type: "list",
-            message: "This is a test, select 'exit'",
-            choices: [
-              "exit"
-            ]
-          })
-          .then(function(answer) {
-            switch (answer.action) {
-            case "exit":
-              connection.end();
-              break;
-            }
-          });
-        }
+        case "View employees by department":
+          connection.end();
+          break;
+
+        case "View employees by manager":
+          connection.end();
+          break;
+
+        case "Add employee":
+          connection.end();
+          break;
+
+        case "Remove employee":
+          connection.end();
+          break;
+
+        case "Update employee role":
+          connection.end();
+          break;
+
+        case "Update employee manager":
+          connection.end();
+          break;
+      }
+    });
+}
