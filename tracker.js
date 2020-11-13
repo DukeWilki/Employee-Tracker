@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Queenw00d.",
+  password: "",
   database: "employee_trackerDB",
 });
 
@@ -36,9 +36,10 @@ function runSearch() {
         "Add employee",
         "Remove employee", // (BONUS) done
         "View departments", // done
-        "Add new department",
+        "Add new department", //done
         "View roles", // done
-        "Add new role",
+        "Add new role", //done
+        // "Update employee role",
       ],
     })
     .then(function (answer) {
@@ -233,6 +234,57 @@ function byManager() {
 
 // ADD EMPLOYEE 
 function addEmployee() {
+  var roleQuery = "SELECT roles.id, title, departments.id, `name` FROM roles INNER JOIN departments ON department_id=departments.id";
+  connection.query(roleQuery, function (err, res) {
+    // console.log(res);
+    const roleOptions = res.map(function (role) {
+      return {
+        name: role.title + " - " + role.name,
+        value: role.id,
+      };
+    });
+    inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "fname",
+        message: "What is their first name?"
+      },
+      {
+        type: "input",
+        name: "lname",
+        message: "What is their last name?"
+      },
+      {
+        type: "confirm",
+        name: "ismanager",
+        message: "Are they a Manager?"
+      },
+      {
+        type: "list",
+        name: "dept",
+        message: "In which department is this role?",
+        choices: roleOptions,
+      }
+    ])
+
+    // TO FIX
+
+    // .then(function (answer) {
+    //   console.log(answer);
+    //   var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id, ismanager) VALUES (?, ?)";
+    //   console.log(query);
+    //   connection.query(query, [role.fname, role.lname, 1, 1, 1], function (err, res) {
+      // console.log(err);
+      // console.log(role.title + " has been added to your database.");
+      // runSearch();
+  //   })
+  // })
+})
+}
+
+
+
 //     inquirer
 //     .prompt([
 //         {
@@ -272,7 +324,7 @@ function addEmployee() {
 //           runSearch();
 //         });
 //       });
-    }
+
 
 // REMOVE EMPLOYEE  //done
 function removeEmployee() {
