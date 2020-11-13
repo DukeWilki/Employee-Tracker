@@ -29,17 +29,16 @@ function runSearch() {
       type: "list",
       message: "What would you like to do?",
       choices: [
-        "View all employees",
-        "View employees by department",
-        "View employees by manager (BONUS)",
-        "View employees by role",
+        "View all employees", //done
+        "View employees by department", //done
+        "View employees by role", //done
+        "View employees by manager", // (BONUS)
         "Add employee",
-        "Remove employee (BONUS)",
-        "View roles",
-        "View departments",
-        "Add new role",
+        "Remove employee", // (BONUS) done
+        "View departments", // done
         "Add new department",
-        "Add employee manager (BONUS)",
+        "View roles", // done
+        "Add new role",
       ],
     })
     .then(function (answer) {
@@ -52,12 +51,12 @@ function runSearch() {
           byDepartment();
           break;
 
-        case "View employees by manager (BONUS)":
-          byManager();
-          break;
-
         case "View employees by role":
           byRole();
+          break;
+
+        case "View employees by manager": // (BONUS)
+          byManager();
           break;
 
         case "Add employee":
@@ -68,26 +67,27 @@ function runSearch() {
           removeEmployee();
           break;
 
-        case "View roles":
-          viewRoles();
-          break;
-
         case "View departments":
           viewDepartments();
           break;
 
-        case "Update employee role":
-          updateRole();
+        case "Add new department":
+          viewDepartments();
           break;
 
-        case "Update employee manager":
-          connection.end();
+        case "View roles":
+          viewRoles();
           break;
+
+        case "Add new role":
+          viewRoles();
+          break;
+
       }
     });
 }
 
-// VEIW ALL EMPLOYEES
+// VEIW ALL EMPLOYEES //done
 function viewAll() {
   var query =
     "SELECT first_name, last_name, role_id, roles.title AS 'role', departments.name AS 'department' FROM employees INNER JOIN roles ON role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id";
@@ -107,11 +107,11 @@ function viewAll() {
   });
 }
 
-// VIEW ALL EMPLOYEES IN A DEPARTMENT
+// VIEW ALL EMPLOYEES IN A DEPARTMENT //done
 function byDepartment() {
   var query = "SELECT * FROM departments";
   connection.query(query, function (err, res) {
-    console.log(res);
+    // console.log(res);
     const deptOptions = res.map(function (department) {
       return {
         name: department.name,
@@ -126,7 +126,7 @@ function byDepartment() {
         choices: deptOptions,
       })
       .then(function (answer) {
-        console.log(answer);
+        // console.log(answer);
         var query =
           "SELECT first_name, last_name, role_id, roles.title AS 'role', salary FROM employees INNER JOIN roles ON role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?";
         connection.query(query, [answer.action], function (err, res) {
@@ -148,26 +148,26 @@ function byDepartment() {
   });
 }
 
-// VIEW ALL EMPLOYEES BY ROLE
+// VIEW ALL EMPLOYEES BY ROLE  //done
 function byRole() {
   var query = "SELECT * FROM roles";
   connection.query(query, function (err, res) {
-    console.log(res);
+    // console.log(res);
     const roleOptions = res.map(function (role) {
       return {
-        name: role.name,
+        name: role.title,
         value: role.id,
       };
     });
     inquirer
       .prompt({
-        name: "role",
+        name: "action",
         type: "list",
         message: "Which role?",
         choices: roleOptions,
       })
       .then(function (answer) {
-        console.log(answer);
+        // console.log(answer);
         var query =
           "SELECT first_name, last_name, role_id, roles.title AS 'role' FROM employees INNER JOIN roles ON role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id WHERE roles.id = ?";
         connection.query(query, [answer.action], function (err, res) {
@@ -177,9 +177,7 @@ function byRole() {
                 ": " +
                 res[i].first_name +
                 " " +
-                res[i].last_name +
-                " || Salary: $" +
-                res[i].salary
+                res[i].last_name
             );
           }
           runSearch();
@@ -233,7 +231,8 @@ function byManager() {
   });
 }
 
-// function addEmployee() {
+// ADD EMPLOYEE 
+function addEmployee() {
 //     inquirer
 //     .prompt([
 //         {
@@ -273,15 +272,16 @@ function byManager() {
 //           runSearch();
 //         });
 //       });
-//     }
+    }
 
+// REMOVE EMPLOYEE  //done
 function removeEmployee() {
   var query = "SELECT id, first_name, last_name FROM employees";
   connection.query(query, function (err, res) {
     console.log(res);
     const empOptions = res.map(function (employee) {
       return {
-        // fname: employee.first_name,
+        fname: employee.first_name,
         name: employee.first_name + " " + employee.last_name,
         value: {
           id: employee.id,
@@ -313,34 +313,31 @@ function removeEmployee() {
   });
 }
 
-
-function viewRoles() {
-var query = "SELECT id, title, salary FROM roles";
-connection.query(query, function (err, res) {
-  console.log(res);
+// VIEW DEPARTMENTS //done
+function viewDepartments() {
+  var query = "SELECT * FROM departments";
+  connection.query(query, function (err, res) {
+    console.log(res);
     for (var i = 0; i < res.length; i++) {
-    console.log(
-      res[i].title +
-        ": $" +
-        res[i].salary
-    );
-  }
-})
+      console.log(res[i].name);
+    }
+    runSearch();
+  });
 }
 
-function viewDepartments() {
-    var query = "SELECT * FROM departments";
-    connection.query(query, function (err, res) {
-        console.log(res);
-          for (var i = 0; i < res.length; i++) {
-          console.log(
-            res[i].name
-          );
-        }
-      })
-      }
+// VIEW ROLES //done
+function viewRoles() {
+  var query = "SELECT id, title, salary FROM roles";
+  connection.query(query, function (err, res) {
+    console.log(res);
+    for (var i = 0; i < res.length; i++) {
+      console.log(res[i].title + ": $" + res[i].salary);
+    }
+    runSearch();
+  });
+}
 
-
+// UPDATE ROLE
 function updateRole() {
   var query = "SELECT id, first_name, last_name FROM employees";
   connection.query(query, function (err, res) {
