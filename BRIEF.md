@@ -139,3 +139,28 @@ You are required to submit the following:
 
 - - -
 © 2019 Trilogy Education Services, a 2U, Inc. brand. All Rights Reserved.
+
+
+
+    inquirer
+      .prompt({
+        name: "remove",
+        type: "list",
+        message: "Which employee?",
+        choices: empOptions,
+      })
+
+      .then(function (answer) {
+        console.log(answer);
+        var query = "DELETE FROM employees WHERE id = ?";
+        console.log(query);
+        connection.query(query, [answer.remove.id], function (err, res) {
+          console.log(err);
+          //   for (var i = 0; i < res.length; i++) {
+          console.log(answer.remove.name + " is no longer with us.");
+          //   }
+          runSearch();
+        });
+      });
+  });
+}

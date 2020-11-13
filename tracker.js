@@ -72,7 +72,7 @@ function runSearch() {
           break;
 
         case "Add new department":
-          viewDepartments();
+          addDepartment();
           break;
 
         case "View roles":
@@ -80,7 +80,7 @@ function runSearch() {
           break;
 
         case "Add new role":
-          viewRoles();
+          addRole();
           break;
 
       }
@@ -324,6 +324,55 @@ function viewDepartments() {
     runSearch();
   });
 }
+
+// ADD DEPARTMENTS //done
+function addDepartment() {
+      inquirer
+      .prompt({
+            type: "input",
+            name: "dept_name",
+            message: "What is the new department called?"
+          })
+
+        .then(function (answer) {
+          console.log(answer);
+          var query = "INSERT INTO departments (name) VALUES (?)";
+          console.log(query);
+          connection.query(query, [answer.dept_name], function (err, res) {
+          console.log(err);
+          console.log(answer.dept_name + " has been added.");
+          runSearch();
+        })
+      })
+}
+
+
+// {
+  //     inquirer
+  //     .prompt([
+  //         {
+  //           type: "input",
+  //           name: "manager",
+  //           message: "Who is their manager?"
+  //         }
+  //       ])
+  //       .then(function(answer) {
+  //         var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Carol','Danvers', 3, 1)"
+  //         connection.query(query, function(err, res) {
+  //           for (var i = 0; i < res.length; i++) {
+  //             console.log(
+  //               "Staff Member: " +
+  //                 res[i].first_name +
+  //                 " " +
+  //                 res[i].last_name +
+  //                 " || Role: " +
+  //                 res[i].role
+  //             );
+  //           }
+  //           runSearch();
+  //         });
+  //       });
+      // }
 
 // VIEW ROLES //done
 function viewRoles() {
