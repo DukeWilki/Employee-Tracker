@@ -346,35 +346,19 @@ function addDepartment() {
       })
 }
 
-
-// {
-  //     inquirer
-  //     .prompt([
-  //         {
-  //           type: "input",
-  //           name: "manager",
-  //           message: "Who is their manager?"
-  //         }
-  //       ])
-  //       .then(function(answer) {
-  //         var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Carol','Danvers', 3, 1)"
-  //         connection.query(query, function(err, res) {
-  //           for (var i = 0; i < res.length; i++) {
-  //             console.log(
-  //               "Staff Member: " +
-  //                 res[i].first_name +
-  //                 " " +
-  //                 res[i].last_name +
-  //                 " || Role: " +
-  //                 res[i].role
-  //             );
-  //           }
-  //           runSearch();
-  //         });
-  //       });
-      // }
-
 // VIEW ROLES //done
+function viewRoles() {
+  var query = "SELECT id, title, salary FROM roles";
+  connection.query(query, function (err, res) {
+    console.log(res);
+    for (var i = 0; i < res.length; i++) {
+      console.log(res[i].title + ": $" + res[i].salary);
+    }
+    runSearch();
+  });
+}
+
+// ADD ROLES //done
 function addRole() {
   var query = "SELECT * FROM departments";
   connection.query(query, function (err, res) {
@@ -417,7 +401,6 @@ function addRole() {
   })
 });
 }
-
 
 // UPDATE ROLE
 function updateRole() {
