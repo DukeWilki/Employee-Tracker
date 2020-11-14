@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: ".",
   database: "employee_trackerDB",
 });
 
@@ -33,7 +33,7 @@ function runSearch() {
         "View employees by department", //done
         "View employees by role", //done
         "View employees by manager", // (BONUS)
-        "Add employee",
+        "Add employee", //done
         "Remove employee", // (BONUS) done
         "View departments", // done
         "Add new department", //done
@@ -180,9 +180,10 @@ function byRole() {
                 " " +
                 res[i].last_name
             );
+            
           }
-          runSearch();
         });
+        runSearch();
       });
     // }
   });
@@ -234,12 +235,23 @@ function byManager() {
 
 // ADD EMPLOYEE 
 function addEmployee() {
-  var roleQuery = "SELECT roles.id, title, departments.id, `name` FROM roles INNER JOIN departments ON department_id=departments.id";
+
+  var mgrQuery = "SELECT * FROM employees INNER JOIN roles ON role_id=roles.id WHERE ismanager=true";
+  connection.query(mgrQuery, function (err, res) {
+    const mgrOptions = res.map(function (mgr) {
+      return {
+        name: mgr.first_name + " " + mgr.last_name + " " + mgr.title,
+        value: mgr.id,
+      };
+    });
+
+  var roleQuery = "SELECT * FROM roles";
+  // var roleQuery = "SELECT roles.id, title, departments.id, `name` FROM roles INNER JOIN departments ON department_id=departments.id";
   connection.query(roleQuery, function (err, res) {
     // console.log(res);
     const roleOptions = res.map(function (role) {
       return {
-        name: role.title + " - " + role.name,
+        name: role.title, // + " - " + role.name,
         value: role.id,
       };
     });
@@ -262,69 +274,33 @@ function addEmployee() {
       },
       {
         type: "list",
-        name: "dept",
-        message: "In which department is this role?",
+        name: "role",
+        message: "What is their role?",
         choices: roleOptions,
+      },
+      {
+        type: "list",
+        name: "mgr",
+        message: "Who is their direct manager?",
+        choices: mgrOptions,
       }
     ])
 
-    // TO FIX
-
-    // .then(function (answer) {
-    //   console.log(answer);
+    .then(function (answer) {
+      console.log(answer);
+      var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id, ismanager) VALUES (?, ?, ?, ?, ?)";
     //   var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id, ismanager) VALUES (?, ?)";
     //   console.log(query);
+      connection.query(query, [answer.fname, answer.lname, answer.role, answer.mgr, answer.ismanager], function (err, res) {
     //   connection.query(query, [role.fname, role.lname, 1, 1, 1], function (err, res) {
       // console.log(err);
-      // console.log(role.title + " has been added to your database.");
-      // runSearch();
-  //   })
-  // })
+      console.log(answer.fname + " " + answer.lname + " has been added to your database.");
+      runSearch();
+    })
+  }) //function to write to sql
 })
+  })
 }
-
-
-
-//     inquirer
-//     .prompt([
-//         {
-//           type: "input",
-//           name: "first_name",
-//           message: "Enter their first name?"
-//         },
-//         {
-//           type: "input",
-//           name: "last_name",
-//           message: "Enter their last name?"
-//         },
-//         {
-//           type: "input",
-//           name: "role",
-//           message: "What is their role?"
-//         },
-//         {
-//           type: "input",
-//           name: "manager",
-//           message: "Who is their manager?"
-//         }
-//       ])
-//       .then(function(answer) {
-//         var query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Carol','Danvers', 3, 1)"
-//         connection.query(query, function(err, res) {
-//           for (var i = 0; i < res.length; i++) {
-//             console.log(
-//               "Staff Member: " +
-//                 res[i].first_name +
-//                 " " +
-//                 res[i].last_name +
-//                 " || Role: " +
-//                 res[i].role
-//             );
-//           }
-//           runSearch();
-//         });
-//       });
-
 
 // REMOVE EMPLOYEE  //done
 function removeEmployee() {
@@ -456,7 +432,7 @@ function addRole() {
 
 // UPDATE ROLE
 function updateRole() {
-  var query = "SELECT id, first_name, last_name FROM employees";
+  var query = "SELECT id, first_name, last_name FROM employees INNER JOIN roles ON role_id=roles.id";
   connection.query(query, function (err, res) {
     console.log(res);
     const empOptions = res.map(function (employee) {
