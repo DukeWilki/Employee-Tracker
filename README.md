@@ -35,10 +35,13 @@ It was more of a basic functional design. Design effort has been put into data i
 * Lines have been added to make it easy to read
 
 ## Screenshots
-
+![Screenshot 1](https://github.com/DukeWilki/Employee-Tracker/blob/master/Assets/removingmanager.JPG)
+![Screenshot 2](https://github.com/DukeWilki/Employee-Tracker/blob/master/Assets/addingstaff.jpg)
+![Screenshot 3](https://github.com/DukeWilki/Employee-Tracker/blob/master/Assets/changingdetails.JPG)
+![Screenshot 4](https://github.com/DukeWilki/Employee-Tracker/blob/master/Assets/salesteam.jpg)
 
 ## Demo
-<iframe src="https://drive.google.com/file/d/1YcKYhyrvKSW1mLMdfLjIJWWp9hGjTrQy/preview" width="640" height="480"></iframe>
+A demo of this app is available on https://drive.google.com/file/d/1YcKYhyrvKSW1mLMdfLjIJWWp9hGjTrQy/preview
 
 ## License
 This application has MIT License applied.
