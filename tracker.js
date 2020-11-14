@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Queenw00d.",
+  password: ".",
   database: "employee_trackerDB",
 });
 
@@ -209,7 +209,6 @@ function byManager() {
     if (err) {
       console.log(err);
       }
-    console.log(res);
     const mgrOptions = res.map(function (employee) {
       return {
         // fname: employee.first_name,
@@ -343,7 +342,6 @@ function removeEmployee() {
     if (err) {
       console.log(err);
       }
-    console.log(res);
     const empOptions = res.map(function (employee) {
       return {
         fname: employee.first_name,
@@ -385,7 +383,6 @@ function viewDepartments() {
     if (err) {
       console.log(err);
       }
-    console.log(res);
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].name);
 
@@ -424,7 +421,6 @@ function viewRoles() {
     if (err) {
       console.log(err);
       }
-    console.log(res);
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].title + ": $" + res[i].salary);
     }
@@ -498,7 +494,6 @@ function updateRole() {
     if (err) {
       console.log(err);
       }
-    console.log(res);
     const empOptions = res.map(function (employee) {
       return {
         fname: employee.first_name,
