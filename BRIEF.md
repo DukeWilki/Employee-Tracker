@@ -34,9 +34,9 @@ Build a command-line application that at a minimum allows the user to:
   * Add roles, 
   * Add employees
 
-  * View departments - done
-  * View roles,  - done
-  * View employees - done
+  * View departments
+  * View roles,
+  * View employees
 
   * Update employee roles
 

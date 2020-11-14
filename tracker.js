@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: ".",
+  password: "",
   database: "employee_trackerDB",
 });
 
@@ -38,7 +38,8 @@ function runSearch() {
         "Add new department",
         "View roles",
         "Add new role",
-        "Update employee role",
+        "Update employee details",
+        "Exit program",
       ],
     })
     .then(function (answer) {
@@ -79,8 +80,12 @@ function runSearch() {
           addRole();
           break;
 
-        case "Update employee role":
+        case "Update employee details":
           updateRole();
+          break;
+
+        case "Exit program":
+          connection.end();
           break;
       }
     });
@@ -93,8 +98,10 @@ function viewAll() {
   connection.query(query, function (err, res) {
     if (err) {
       console.log(err);
-      }
-      console.log("-----------RESULTS-----------");
+    }
+    console.log(
+      "-------------------ENTIRE COMPANY STAFF LIST-------------------"
+    );
     for (var i = 0; i < res.length; i++) {
       console.log(
         res[i].first_name +
@@ -106,6 +113,9 @@ function viewAll() {
           res[i].department
       );
     }
+    console.log(
+      "---------------------------------------------------------------"
+    );
     runSearch();
   });
 }
@@ -115,8 +125,10 @@ function byDepartment() {
   var query = "SELECT * FROM departments";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("There seems to be an issue, check your connection");
-      }
+      console.log(
+        "We're having trouble finding the department list. Check your connection with the database and try again"
+      );
+    }
     const deptOptions = res.map(function (department) {
       return {
         name: department.name,
@@ -133,11 +145,13 @@ function byDepartment() {
       .then(function (answer) {
         var query =
           "SELECT first_name, last_name, role_id, roles.title AS 'role', salary FROM employees INNER JOIN roles ON role_id = roles.id INNER JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?";
-        connection.query(query, [answer.action], function (err, res) {
+        connection.query(query, [answer.department], function (err, res) {
           if (err) {
-            console.log("We're having trouble finding the department list. Check your connection with the database and try again");
-            }
-            console.log("-----------RESULTS-----------");
+            console.log(
+              "We're having trouble finding the department list. Check your connection with the database and try again"
+            );
+          }
+          console.log("-----------DEPARTMENT STAFF LIST-----------");
           for (var i = 0; i < res.length; i++) {
             console.log(
               res[i].role +
@@ -149,19 +163,22 @@ function byDepartment() {
                 res[i].salary
             );
           }
+          console.log("-------------------------------------------");
           runSearch();
         });
       });
   });
 }
 
-// VIEW ALL EMPLOYEES BY ROLE 
+// VIEW ALL EMPLOYEES BY ROLE
 function byRole() {
   var query = "SELECT * FROM roles";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the role list. Check your connection with the database and try again");
-      }
+      console.log(
+        "We're having trouble finding the role list. Check your connection with the database and try again"
+      );
+    }
     const roleOptions = res.map(function (role) {
       return {
         name: role.title,
@@ -181,17 +198,16 @@ function byRole() {
         connection.query(query, [answer.role], function (err, res) {
           if (err) {
             console.log(err);
-            }
-            console.log("-----------RESULTS-----------");
+          }
+          console.log("-----------ROLE STAFF LIST-----------");
           for (var i = 0; i < res.length; i++) {
             console.log(
               res[i].role + ": " + res[i].first_name + " " + res[i].last_name
             );
           }
-          console.log("-----------------------------");
+          console.log("-------------------------------------");
           runSearch();
         });
-
       });
   });
 }
@@ -202,20 +218,23 @@ function addEmployee() {
     "SELECT * FROM employees INNER JOIN roles ON role_id=roles.id WHERE ismanager=true";
   connection.query(mgrQuery, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the manager list. Check your connection with the database and try again");
-      }
+      console.log(
+        "We're having trouble finding the manager list. Check your connection with the database and try again"
+      );
+    }
     const mgrOptions = res.map(function (mgr) {
       return {
         name: mgr.first_name + " " + mgr.last_name + " - " + mgr.title,
         value: mgr.id,
       };
     });
-
     var roleQuery = "SELECT * FROM roles";
     connection.query(roleQuery, function (err, res) {
       if (err) {
-        console.log("We're having trouble finding the role list. Check your connection with the database and try again");
-        }
+        console.log(
+          "We're having trouble finding the role list. Check your connection with the database and try again"
+        );
+      }
       const roleOptions = res.map(function (role) {
         return {
           name: role.title,
@@ -266,11 +285,10 @@ function addEmployee() {
             choices: mgrOptions,
           },
         ])
-
         .then(function (answer) {
           var query =
             "INSERT INTO employees (first_name, last_name, role_id, manager_id, ismanager) VALUES (?, ?, ?, ?, ?)";
-            connection.query(
+          connection.query(
             query,
             [
               answer.fname,
@@ -282,14 +300,15 @@ function addEmployee() {
             function (err, res) {
               if (err) {
                 console.log(err);
-                }
-              console.log("-----------RESULT------------");
+              }
+              console.log("--------------------RESULT---------------------");
               console.log(
                 answer.fname +
                   " " +
                   answer.lname +
                   " has been added to your database."
               );
+              console.log("--------------------~~~~~~---------------------");
               runSearch();
             }
           );
@@ -298,13 +317,15 @@ function addEmployee() {
   });
 }
 
-// REMOVE EMPLOYEE 
+// REMOVE EMPLOYEE
 function removeEmployee() {
   var query = "SELECT id, first_name, last_name FROM employees";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the employee list. Check your connection with the database and try again");
-      }
+      console.log(
+        "We're having trouble finding the employee list. Check your connection with the database and try again"
+      );
+    }
     const empOptions = res.map(function (employee) {
       return {
         fname: employee.first_name,
@@ -315,7 +336,6 @@ function removeEmployee() {
         },
       };
     });
-
     inquirer
       .prompt({
         name: "remove",
@@ -323,17 +343,25 @@ function removeEmployee() {
         message: "Which employee?",
         choices: empOptions,
       })
-
       .then(function (answer) {
         var query = "DELETE FROM employees WHERE id = ?";
         connection.query(query, [answer.remove.id], function (err, res) {
           if (err) {
-            console.log("-----------WARNING-----------");
-            console.log(answer.remove.name + " manages a team. Reassign each direct report using 'Update employee role' option and try again");
-            console.log("Could not remove " + answer.remove.name + " from the database");
-            } else
-            console.log("-----------RESULT------------");
+            console.log("----------------------------------------------------WARNING----------------------------------------------------");
+            console.log(
+              answer.remove.name +
+                " manages a team. Reassign each direct report using 'Update employee details' option and try again"
+            );
+            console.log(
+              "Could not remove " + answer.remove.name + " from the database"
+            );
+            console.log("---------------------------------------------------------------------------------------------------------------");
+
+          } else { 
+          console.log("--------------------RESULT---------------------");
           console.log(answer.remove.name + " is no longer with us.");
+          console.log("--------------------~~~~~~---------------------");
+          }
           runSearch();
         });
       });
@@ -345,13 +373,15 @@ function viewDepartments() {
   var query = "SELECT * FROM departments";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the department list. Check your connection with the database and try again");
-      }
-      console.log("-----------RESULTS-----------");
+      console.log(
+        "We're having trouble finding the department list. Check your connection with the database and try again"
+      );
+    }
+    console.log("-----------DEPARTMENT LIST-----------");
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].name);
-
     }
+    console.log("-------------------------------------");
     runSearch();
   });
 }
@@ -371,15 +401,17 @@ function addDepartment() {
         return "Department cannot be blank and must contain letters and spaces only.";
       },
     })
-
     .then(function (answer) {
       var query = "INSERT INTO departments (name) VALUES (?)";
       connection.query(query, [answer.dept_name], function (err, res) {
         if (err) {
           console.log(err);
-          }
-          console.log("-----------RESULT------------");
-        console.log(answer.dept_name + " department has been added to the database.");
+        }
+        console.log("--------------------RESULT---------------------");
+        console.log(
+          answer.dept_name + " department has been added to the database."
+        );
+        console.log("--------------------~~~~~~---------------------");
         runSearch();
       });
     });
@@ -390,12 +422,15 @@ function viewRoles() {
   var query = "SELECT id, title, salary FROM roles";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the role list. Check your connection with the database and try again");
-      }
-      console.log("-----------RESULTS-----------");
+      console.log(
+        "We're having trouble finding the role list. Check your connection with the database and try again"
+      );
+    }
+    console.log("-----------------ROLE LIST-----------------");
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].title + ": $" + res[i].salary);
     }
+    console.log("-------------------------------------------");
     runSearch();
   });
 }
@@ -405,8 +440,10 @@ function addRole() {
   var query = "SELECT * FROM departments";
   connection.query(query, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the department list. Check your connection with the database and try again");
-      }
+      console.log(
+        "We're having trouble finding the department list. Check your connection with the database and try again"
+      );
+    }
     const deptOptions = res.map(function (department) {
       return {
         name: department.name,
@@ -446,7 +483,6 @@ function addRole() {
           choices: deptOptions,
         },
       ])
-
       .then(function (answer) {
         var query =
           "INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)";
@@ -456,14 +492,15 @@ function addRole() {
           function (err, res) {
             if (err) {
               console.log(err);
-              }
-              console.log("-----------RESULT------------");
+            }
+            console.log("-----------------RESULT------------------");
             console.log(
               answer.title +
                 " has been added at a salary of $" +
                 answer.salary +
                 "."
             );
+            console.log("-----------------~~~~~~------------------");
             runSearch();
           }
         );
@@ -473,85 +510,97 @@ function addRole() {
 
 // UPDATE ROLE
 function updateRole() {
-  var employeeQuery = 
-  "SELECT employees.id, first_name, last_name, role_id, roles.title AS 'role' FROM employees INNER JOIN roles ON role_id = roles.id";
+  var employeeQuery =
+    "SELECT employees.id, first_name, last_name, role_id, roles.title AS 'role' FROM employees INNER JOIN roles ON role_id = roles.id";
   connection.query(employeeQuery, function (err, res) {
     if (err) {
-      console.log("We're having trouble finding the employee list. Check your connection with the database and try again");
-      }
+      console.log(
+        "We're having trouble finding the employee list. Check your connection with the database and try again"
+      );
+    }
     const empOptions = res.map(function (employee) {
       return {
         fname: employee.first_name,
-        name: employee.first_name + " " + employee.last_name + " " + employee.role,
+        name:
+          employee.first_name + " " + employee.last_name + " - " + employee.role,
         value: {
           id: employee.id,
           name: employee.first_name + " " + employee.last_name,
         },
       };
     });
-
-  var roleQuery =
-  "SELECT * FROM roles";
-connection.query(roleQuery, function (err, res) {
-  if (err) {
-    console.log("We're having trouble finding the role list. Check your connection with the database and try again");
-    }
-  const roleOptions = res.map(function (role) {
-    return {
-      name: role.title,
-      value: role.id,
-    };
-  });
-
-  var mgrQuery =
-  "SELECT * FROM employees INNER JOIN roles ON role_id=roles.id WHERE ismanager=true";
-connection.query(mgrQuery, function (err, res) {
-  if (err) {
-    console.log("We're having trouble finding the manager list. Check your connection with the database and try again");
-    }
-  const mgrOptions = res.map(function (mgr) {
-    return {
-      name: mgr.first_name + " " + mgr.last_name + " - " + mgr.title,
-      value: mgr.id,
-    };
-  });
-
-    inquirer
-      .prompt([{
-        name: "employee",
-        type: "list",
-        message: "Which employee?",
-        choices: empOptions,
-      },
-        {
-          type: "list",
-          name: "role",
-          message: "What is the emploee's new role?",
-          choices: roleOptions,
-        },
-        {
-          type: "list",
-          name: "mmanager",
-          message: "What is the emploee's new manager?",
-          choices: mgrOptions,
-        },
-      ])
-
-      .then(function (answer) {
-        console.log(answer);
-        var query = 
-        "UPDATE employees SET role_id = ?, manager_id= ? WHERE employees.id = ?"
-        console.log(query);
-        connection.query(query, [answer.role, answer.manager, answer.employee.id], function (err, res) {
-          if (err) {
-          console.log(err);
-          }
-          console.log("-----------RESULT------------");
-          console.log(answer.employee.name + "'s details have now been changed.");
-          runSearch();
-        });
+    var roleQuery = "SELECT * FROM roles";
+    connection.query(roleQuery, function (err, res) {
+      if (err) {
+        console.log(
+          "We're having trouble finding the role list. Check your connection with the database and try again"
+        );
+      }
+      const roleOptions = res.map(function (role) {
+        return {
+          name: role.title,
+          value: role.id,
+        };
       });
-    })
+      var mgrQuery =
+        "SELECT * FROM employees INNER JOIN roles ON role_id=roles.id WHERE ismanager=true";
+      connection.query(mgrQuery, function (err, res) {
+        if (err) {
+          console.log(
+            "We're having trouble finding the manager list. Check your connection with the database and try again"
+          );
+        }
+        const mgrOptions = res.map(function (mgr) {
+          return {
+            name: mgr.first_name + " " + mgr.last_name + " - " + mgr.title,
+            value: mgr.id,
+          };
+        });
+        inquirer
+          .prompt([
+            {
+              name: "employee",
+              type: "list",
+              message: "Which employee?",
+              choices: empOptions,
+            },
+            {
+              type: "list",
+              name: "role",
+              message: "What is the emploee's new role?",
+              choices: roleOptions,
+            },
+            {
+              type: "list",
+              name: "mmanager",
+              message: "What is the emploee's new manager?",
+              choices: mgrOptions,
+            },
+          ])
+          .then(function (answer) {
+            var query =
+              "UPDATE employees SET role_id = ?, manager_id= ? WHERE employees.id = ?";
+            connection.query(
+              query,
+              [answer.role, answer.manager, answer.employee.id],
+              function (err, res) {
+                if (err) {
+                  console.log(err);
+                }
+                console.log(
+                  "-------------------------RESULT--------------------------"
+                );
+                console.log(
+                  answer.employee.name + "'s details have now been changed."
+                );
+                console.log(
+                  "-------------------------~~~~~~--------------------------"
+                );
+                runSearch();
+              }
+            );
+          });
+      });
+    });
   });
-});
 }
